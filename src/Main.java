@@ -67,7 +67,6 @@ public class Main {
     }
 
     public static void main(String[] args) throws FileNotFoundException {
-
         //args[0] should be inputdir and args[1] should be outputdir
         //pipe output to outputdir as files starting from query1, query2, etc.
         queriesFile= args[0] + "/queries.sql";
@@ -81,6 +80,7 @@ public class Main {
                 PlainSelect plainSelect= (PlainSelect) select.getSelectBody();
                 List<SelectItem> sel= plainSelect.getSelectItems();
                 Expression exp= plainSelect.getWhere();
+                System.out.println(exp);
                 Table tableName= (Table) plainSelect.getFromItem();
                 if (sel.size() == 1 && sel.get(0).toString().equals("*")) { //fix if * is not the only selectItem
                     ScanOperator scan= new ScanOperator(tableName.toString());
