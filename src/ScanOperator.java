@@ -1,11 +1,7 @@
-import java.util.ArrayList;
-import java.util.List;
-
 public class ScanOperator extends Operator {
 
-    private List<Operator> opChildren= new ArrayList<>();
-    private TableDB        table;
-    private int            row;
+    private TableDB table;
+    private int     row;
 
     public ScanOperator(String fileName) {
         super(fileName);

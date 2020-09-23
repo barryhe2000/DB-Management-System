@@ -3,21 +3,14 @@ import java.util.List;
 
 public abstract class Operator {
 
-    protected String       fileName;
-    private List<Operator> opChildren= new ArrayList<>();
+    protected String         fileName;
+    protected List<Operator> opChildren= new ArrayList<>();
 
     public Operator(String fileName) {
         this.fileName= fileName;
     }
 
-    public Tuple getNextTuple() {
-        if (opChildren.isEmpty()) {
-            return null;
-        } else {
-            return new Tuple(new String[0]);
-            // do something to the child
-        }
-    }
+    public abstract Tuple getNextTuple();
 
     public abstract void reset();
 
