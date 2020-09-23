@@ -24,6 +24,10 @@ public class Main {
     public static Map<String, String> getTablePath() {
     	return tablePath;
     }
+    
+    public static Map<String, List<String>> getTableHeaders() {
+    	return tableHeaders;
+    }
 
     private static void initDB(String inputdir) throws FileNotFoundException {
         tablePath= new HashMap<>();
@@ -65,7 +69,16 @@ public class Main {
                 Table tableName= (Table) plainSelect.getFromItem();
                 if (sel.size() == 1 && sel.get(0).toString().equals("*")) {
                     ScanOperator scan= new ScanOperator(tableName.toString());
-                    scan.dump(args[1] + "/query" + queryNum);
+                    
+                    if(exp != null) {
+                    	List<Operator> opList = new ArrayList<Operator>();
+                        opList.add(scan);
+
+                        SelectOperator selectOp = new SelectOperator(tableName.toString(), opList,exp);
+                        selectOp.dump(args[1] + "/query" + queryNum);
+                    } else {
+                    	scan.dump(args[1] + "/query" + queryNum);
+                    }
                     queryNum++;
                 }
             }
