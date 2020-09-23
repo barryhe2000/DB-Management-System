@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.schema.Table;
@@ -16,75 +15,58 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 
 public class Main {
 
-    private static String               queriesFile;
-    private static String               schema;
-    private static Map<String, TableDB> database; //name of table to a Table object
-
-    public static Map<String, TableDB> getDatabase() {
-        return database;
+    private static String queriesFile; //queries.sql
+    private static String schema; //schema.txt
+    private static Map<String, String> tablePath; //name of table to path of table
+    private static Map<String, List<String>> tableHeaders; //name of table to column names of table
+    private static int queryNum; //number of query output
+    
+    public static Map<String, String> getTablePath() {
+    	return tablePath;
     }
 
     private static void initDB(String inputdir) throws FileNotFoundException {
-        database= new HashMap<>();
+        tablePath= new HashMap<>();
+        tableHeaders= new HashMap<>();
+        queryNum= 1;
         BufferedReader in= new BufferedReader(new FileReader(schema));
         String line= null;
         try {
-            while ( (line= in.readLine()) != null) {
-                String[] lineArr= line.split("\\s+"); //lineArr: [Sailor, A, B, C]
-                String tableName= lineArr[0]; //Sailor
-                List<List<String>> tableElements= new ArrayList<>();
+            while ((line= in.readLine()) != null) {
+                String[] lineArr= line.split("\\s+");
+                String tableName= lineArr[0]; 
                 List<String> columnNames= new ArrayList<>();
                 for (int i= 1; i < lineArr.length; i++) {
                     columnNames.add(lineArr[i]);
                 }
-                tableElements.add(columnNames);
-
-                String dataTablePath= inputdir + "/db/data/" + tableName;
-                BufferedReader tableIn= new BufferedReader(new FileReader(dataTablePath));
-                String strRow;
-                List<Tuple> entireTable= new ArrayList<>();
-                try {
-                    while ( (strRow= tableIn.readLine()) != null) {
-                        String[] row= strRow.split(",");
-                        List<String> rowList= new ArrayList<>();
-                        for (String s : row) {
-                            rowList.add(s);
-                        }
-                        tableElements.add(rowList);
-                        Tuple newRow= new Tuple(row);
-                        entireTable.add(newRow);
-                    }
-                    database.put(tableName, new TableDB(tableName, tableElements, entireTable));
-                    tableIn.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                tableHeaders.put(tableName, columnNames);
+                tablePath.put(tableName, inputdir + "/db/data/" + tableName);
             }
             in.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-
+    
+    //args[0] should be inputdir and args[1] should be outputdir
+    //pipe output to outputdir as files starting from query1, query2, etc.
     public static void main(String[] args) throws FileNotFoundException {
-        //args[0] should be inputdir and args[1] should be outputdir
-        //pipe output to outputdir as files starting from query1, query2, etc.
         queriesFile= args[0] + "/queries.sql";
         schema= args[0] + "/db/schema.txt";
         initDB(args[0]);
         try {
             CCJSqlParser parser= new CCJSqlParser(new FileReader(queriesFile));
             Statement statement;
-            while ( (statement= parser.Statement()) != null) {
+            while ((statement= parser.Statement()) != null) {
                 Select select= (Select) statement;
                 PlainSelect plainSelect= (PlainSelect) select.getSelectBody();
                 List<SelectItem> sel= plainSelect.getSelectItems();
                 Expression exp= plainSelect.getWhere();
-                System.out.println(exp);
                 Table tableName= (Table) plainSelect.getFromItem();
-                if (sel.size() == 1 && sel.get(0).toString().equals("*")) { //fix if * is not the only selectItem
+                if (sel.size() == 1 && sel.get(0).toString().equals("*")) {
                     ScanOperator scan= new ScanOperator(tableName.toString());
-                    scan.dump();
+                    scan.dump(args[1] + "/query" + queryNum);
+                    queryNum++;
                 }
             }
         } catch (Exception e) {

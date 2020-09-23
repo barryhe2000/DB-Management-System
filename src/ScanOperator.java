@@ -1,24 +1,30 @@
-public class ScanOperator extends Operator {
+import java.io.BufferedReader;
+import java.io.FileReader;
 
-    private TableDB table;
-    private int     row;
+public class ScanOperator extends Operator {
+	
+    private BufferedReader in;
 
     public ScanOperator(String fileName) {
         super(fileName);
-        table= Main.getDatabase().get(fileName);
-        row= 0;
+        reset();
     }
 
     @Override public Tuple getNextTuple() {
-        if (row < table.getRows().size()) {
-            int temp= row;
-            row++;
-            return table.getRows().get(temp);
-        }
-        return null;
+    	String strRow;
+    	try {
+    	    if ((strRow=in.readLine()) != null) return new Tuple(strRow.split(","));
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		return null;
     }
 
     @Override public void reset() {
-        row= 0;
+        try {
+        	in= new BufferedReader(new FileReader(Main.getTablePath().get(fileName)));
+        } catch (Exception e) {
+        	e.printStackTrace();
+        } 
     }
 }

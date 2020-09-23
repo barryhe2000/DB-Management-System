@@ -1,1 +1,2 @@
-SELECT * FROM Sailors WHERE Sailors.id = 1;
+SELECT * FROM Sailors WHERE Sailors.A = 1;
+SELECT * FROM Boats;

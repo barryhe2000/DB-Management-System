@@ -1,6 +1,6 @@
 public class Tuple {
     private String[] row;
-    private int      size;
+    private int size;
 
     public Tuple(String[] row) {
         this.row= row;
@@ -19,9 +19,8 @@ public class Tuple {
     @Override public String toString() {
         String result= "";
         for (int i= 0; i < row.length; i++) {
-            result+= row[i];
-            if (i < row.length - 1)
-                result+= ",";
+            result += row[i];
+            if (i < row.length - 1) result += ",";
         }
         return result;
     }
