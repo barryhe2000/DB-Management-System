@@ -33,12 +33,16 @@ public class Main {
     	return tablePath;
     }
     
+    /**
+     * @return tableHeaders, maps table name to column headers
+     */
     public static Map<String, List<String>> getTableHeaders() {
     	return tableHeaders;
     }
     
-    /*
-     * Initialize database.
+    /**
+     * Initialize database to track schema and table headers.
+     * @param inputdir, path to input directory
      */
     private static void initDB(String inputdir) throws FileNotFoundException {
         tablePath= new HashMap<>();
