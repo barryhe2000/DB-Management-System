@@ -86,7 +86,16 @@ public class Main {
                 	queryNum++;
                 } else if (sel.size() == 1 && sel.get(0).toString().equals("*")) {
                     ScanOperator scan= new ScanOperator(tableName.toString());
-                    scan.dump(args[1] + "/query" + queryNum);
+                    
+                    if(exp != null) {
+                    	List<Operator> opList = new ArrayList<Operator>();
+                        opList.add(scan);
+
+                        SelectOperator selectOp = new SelectOperator(tableName.toString(), opList,exp);
+                        selectOp.dump(args[1] + "/query" + queryNum);
+                    } else {
+                    	scan.dump(args[1] + "/query" + queryNum);
+                    }
                     queryNum++;
                 }
             }
