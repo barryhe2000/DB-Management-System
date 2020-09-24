@@ -20,8 +20,7 @@ public class Tuple {
     }
     
     public List<String> toStringList() {
-    	List<String> strList = Arrays.asList(row);
-    	return strList;
+    	return Arrays.asList(row);
     }
 
     @Override public String toString() {

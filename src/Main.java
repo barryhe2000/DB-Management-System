@@ -79,18 +79,18 @@ public class Main {
                 //cannot have multiple operators created for the sake of parsing one query
                 //so incorporate some logic below to choose which operator to create after
                 //parsing the query
-                if (exp != null) {
+                if (sel.size() > 1 || sel.size() == 1 && !sel.get(0).toString().equals("*")) {
+                	ProjectOperator project = new ProjectOperator(tableName.toString(), sel, exp);
+                	project.dump(args[1] + "/query" + queryNum);
+                	queryNum++;
+                } else if (exp != null) {
                 	SelectOperator so= new SelectOperator(tableName.toString(), exp);
                 	so.dump(args[1] + "/query" + queryNum);
                 	queryNum++;
                 } else if (sel.size() == 1 && sel.get(0).toString().equals("*")) {
-                    ScanOperator scan= new ScanOperator(tableName.toString());
+                	ScanOperator scan= new ScanOperator(tableName.toString());
                     scan.dump(args[1] + "/query" + queryNum);
                     queryNum++;
-                } else if (sel.size() >= 1) {
-                	ProjectOperator project = new ProjectOperator(tableName.toString(), sel);
-                	project.dump(args[1] + "/query" + queryNum);
-                	queryNum++;
                 }
             }
         } catch (Exception e) {

@@ -11,6 +11,7 @@ public class SelectOperator extends ScanOperator {
 
     @Override public Tuple getNextTuple() {
     	Tuple t = super.getNextTuple();
+    	if (expression == null) return t;
     	while(t != null) {
     		ExpressionEvaluator e = new ExpressionEvaluator(t);
     		expression.accept(e);

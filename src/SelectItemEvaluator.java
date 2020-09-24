@@ -29,7 +29,6 @@ public class SelectItemEvaluator implements SelectItemVisitor {
 
 	@Override
 	public void visit(AllTableColumns arg0) {
-		// TODO Auto-generated method stub
 		throw new UnsupportedOperationException();
 	}
 
@@ -38,7 +37,7 @@ public class SelectItemEvaluator implements SelectItemVisitor {
 		Expression expr = arg0.getExpression();
 		ExpressionEvaluator e = new ExpressionEvaluator(tuple);
 		expr.accept(e);
-		List<String> strList = new ArrayList<String>();
+		List<String> strList = new ArrayList<>();
 		strList.add(e.getStack().pop().toString());
 		stack.push(strList);
 	}
