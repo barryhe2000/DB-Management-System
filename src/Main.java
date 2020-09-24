@@ -36,7 +36,10 @@ public class Main {
     public static Map<String, List<String>> getTableHeaders() {
     	return tableHeaders;
     }
-
+    
+    /*
+     * Initialize database.
+     */
     private static void initDB(String inputdir) throws FileNotFoundException {
         tablePath= new HashMap<>();
         tableHeaders= new HashMap<>();
