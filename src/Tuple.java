@@ -1,3 +1,6 @@
+import java.util.Arrays;
+import java.util.List;
+
 public class Tuple {
     private String[] row;
     private int size;
@@ -14,6 +17,11 @@ public class Tuple {
 
     public int getSize() {
         return size;
+    }
+    
+    public List<String> toStringList() {
+    	List<String> strList = Arrays.asList(row);
+    	return strList;
     }
 
     @Override public String toString() {

@@ -87,6 +87,10 @@ public class Main {
                     ScanOperator scan= new ScanOperator(tableName.toString());
                     scan.dump(args[1] + "/query" + queryNum);
                     queryNum++;
+                } else if (sel.size() >= 1) {
+                	ProjectOperator project = new ProjectOperator(tableName.toString(), sel);
+                	project.dump(args[1] + "/query" + queryNum);
+                	queryNum++;
                 }
             }
         } catch (Exception e) {
