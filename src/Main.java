@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
@@ -86,16 +85,7 @@ public class Main {
                 	queryNum++;
                 } else if (sel.size() == 1 && sel.get(0).toString().equals("*")) {
                     ScanOperator scan= new ScanOperator(tableName.toString());
-                    
-                    if(exp != null) {
-                    	List<Operator> opList = new ArrayList<Operator>();
-                        opList.add(scan);
-
-                        SelectOperator selectOp = new SelectOperator(tableName.toString(), opList,exp);
-                        selectOp.dump(args[1] + "/query" + queryNum);
-                    } else {
-                    	scan.dump(args[1] + "/query" + queryNum);
-                    }
+                    scan.dump(args[1] + "/query" + queryNum);
                     queryNum++;
                 }
             }
