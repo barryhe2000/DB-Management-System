@@ -8,7 +8,7 @@ public class Tuple {
     }
 
     public String getRowElement(int index) {
-        assert index > 0 && index < size;
+        assert index >= 0 && index < size;
         return row[index];
     }
 

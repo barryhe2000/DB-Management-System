@@ -1,15 +1,11 @@
 import java.io.FileWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 public abstract class Operator {
 
     protected String fileName;
-    protected List<Operator> opChildren;
 
     public Operator(String fileName) {
         this.fileName= fileName;
-        opChildren = new ArrayList<>();
     }
 
     public abstract Tuple getNextTuple();

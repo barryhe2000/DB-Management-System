@@ -1,23 +1,22 @@
-import java.util.List;
+import net.sf.jsqlparser.expression.Expression;
 
-public class SelectOperator extends Operator {
+public class SelectOperator extends ScanOperator {
+	
+	protected Expression expression;
 
-    public SelectOperator(String fileName, List<Operator> opChildren) {
+    public SelectOperator(String fileName, Expression expression) {
         super(fileName);
-        this.opChildren= opChildren;
+        this.expression = expression;
     }
 
     @Override public Tuple getNextTuple() {
-        for (Operator op : opChildren) {
-            Tuple t= op.getNextTuple();
-            //if expression then return tuple;
-            //if not match do nothing and go next
-        }
+    	Tuple t = super.getNextTuple();
+    	while(t != null) {
+    		ExpressionEvaluator e = new ExpressionEvaluator(t);
+    		expression.accept(e);
+    		if (e.getStack().pop().equals(true)) return t;	
+    		t = super.getNextTuple();
+    	}
         return null;
     }
-
-    @Override public void reset() {
-
-    }
-
 }

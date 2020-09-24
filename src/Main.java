@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
@@ -15,14 +16,26 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 
 public class Main {
 
-    private static String queriesFile; //queries.sql
-    private static String schema; //schema.txt
+    private static String queriesFile; //path to queries.sql
+    private static String schema; //path to schema.txt
     private static Map<String, String> tablePath; //name of table to path of table
     private static Map<String, List<String>> tableHeaders; //name of table to column names of table
     private static int queryNum; //number of query output
     
+    public static String getQueriesFile() {
+    	return queriesFile;
+    }
+    
+    public static String getSchema() {
+    	return schema;
+    }
+    
     public static Map<String, String> getTablePath() {
     	return tablePath;
+    }
+    
+    public static Map<String, List<String>> getTableHeaders() {
+    	return tableHeaders;
     }
 
     private static void initDB(String inputdir) throws FileNotFoundException {
@@ -63,7 +76,15 @@ public class Main {
                 List<SelectItem> sel= plainSelect.getSelectItems();
                 Expression exp= plainSelect.getWhere();
                 Table tableName= (Table) plainSelect.getFromItem();
-                if (sel.size() == 1 && sel.get(0).toString().equals("*")) {
+                //super important: make sure to only create one operator per query
+                //cannot have multiple operators created for the sake of parsing one query
+                //so incorporate some logic below to choose which operator to create after
+                //parsing the query
+                if (exp != null) {
+                	SelectOperator so= new SelectOperator(tableName.toString(), exp);
+                	so.dump(args[1] + "/query" + queryNum);
+                	queryNum++;
+                } else if (sel.size() == 1 && sel.get(0).toString().equals("*")) {
                     ScanOperator scan= new ScanOperator(tableName.toString());
                     scan.dump(args[1] + "/query" + queryNum);
                     queryNum++;

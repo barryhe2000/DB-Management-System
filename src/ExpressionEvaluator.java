@@ -43,7 +43,17 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 
 public class ExpressionEvaluator implements ExpressionVisitor {
 	
-	Stack<Long> stack = new Stack<>();
+	Stack<Object> stack;
+	Tuple tuple;
+	
+	public ExpressionEvaluator(Tuple tuple) {
+		stack = new Stack<>();
+		this.tuple = tuple;
+	}
+	
+	public Stack<Object> getStack() {
+		return stack;
+	}
 
 	@Override
 	public void visit(NullValue arg0) {
@@ -136,8 +146,9 @@ public class ExpressionEvaluator implements ExpressionVisitor {
 
 	@Override
 	public void visit(AndExpression arg0) {
-		
-		
+		arg0.getLeftExpression().accept(this);
+		arg0.getRightExpression().accept(this);
+		stack.push((Boolean) stack.pop() && (Boolean) stack.pop());
 	}
 
 	@Override
@@ -153,22 +164,25 @@ public class ExpressionEvaluator implements ExpressionVisitor {
 	}
 
 	@Override
-	public void visit(EqualsTo arg0) { //5 == 4
-		arg0.getLeftExpression();
-		arg0.getRightExpression();
-		
+	public void visit(EqualsTo arg0) { 
+		arg0.getLeftExpression().accept(this);
+		arg0.getRightExpression().accept(this);
+		System.out.println("hi");
+		stack.push(stack.pop().equals(stack.pop()));
 	}
 
 	@Override
 	public void visit(GreaterThan arg0) {
-		
-		
+		arg0.getLeftExpression().accept(this);
+		arg0.getRightExpression().accept(this);
+		stack.push((Long) stack.pop() < (Long) stack.pop());
 	}
 
 	@Override
 	public void visit(GreaterThanEquals arg0) {
-		
-		
+		arg0.getLeftExpression().accept(this);
+		arg0.getRightExpression().accept(this);
+		stack.push((Long) stack.pop() <= (Long) stack.pop());
 	}
 
 	@Override
@@ -191,26 +205,31 @@ public class ExpressionEvaluator implements ExpressionVisitor {
 
 	@Override
 	public void visit(MinorThan arg0) {
-		
-		
+		arg0.getLeftExpression().accept(this);
+		arg0.getRightExpression().accept(this);
+		stack.push((Long) stack.pop() > (Long) stack.pop());
 	}
 
 	@Override
 	public void visit(MinorThanEquals arg0) {
-		
-		
+		arg0.getLeftExpression().accept(this);
+		arg0.getRightExpression().accept(this);
+		stack.push((Long) stack.pop() >= (Long) stack.pop());
 	}
 
 	@Override
 	public void visit(NotEqualsTo arg0) {
-		
-		
+		arg0.getLeftExpression().accept(this);
+		arg0.getRightExpression().accept(this);
+		stack.push(!stack.pop().equals(stack.pop()));
 	}
 
 	@Override
 	public void visit(Column arg0) {
-		
-		
+		String tableName = arg0.getTable().getName();
+    	String colName = arg0.getColumnName();
+    	int colIndex = Main.getTableHeaders().get(tableName).indexOf(colName);
+    	stack.push(Long.parseLong(tuple.getRowElement(colIndex)));
 	}
 
 	@Override
