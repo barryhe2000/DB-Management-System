@@ -9,6 +9,7 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.FromItem;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -82,23 +83,28 @@ public class Main {
                 List<SelectItem> sel= plainSelect.getSelectItems();
                 Expression exp= plainSelect.getWhere();
                 Table tableName= (Table) plainSelect.getFromItem();
+                List<FromItem> joinList = plainSelect.getJoins();
+                System.out.println(exp);
+                System.out.println(joinList);
                 //super important: make sure to only create one operator per query
                 //cannot have multiple operators created for the sake of parsing one query
                 //so incorporate some logic below to choose which operator to create after
                 //parsing the query
-                if (sel.size() > 1 || sel.size() == 1 && !sel.get(0).toString().equals("*")) {
-                	ProjectOperator project = new ProjectOperator(tableName.toString(), sel, exp);
-                	project.dump(args[1] + "/query" + queryNum);
-                	queryNum++;
-                } else if (exp != null) {
-                	SelectOperator so= new SelectOperator(tableName.toString(), exp);
-                	so.dump(args[1] + "/query" + queryNum);
-                	queryNum++;
-                } else if (sel.size() == 1 && sel.get(0).toString().equals("*")) {
-                	ScanOperator scan= new ScanOperator(tableName.toString());
-                    scan.dump(args[1] + "/query" + queryNum);
-                    queryNum++;
-                }
+//                if (joinList.size() > 0) {
+//                	
+//                } else if (sel.size() > 1 || sel.size() == 1 && !sel.get(0).toString().equals("*")) {
+//                	ProjectOperator project = new ProjectOperator(tableName.toString(), sel, exp);
+//                	project.dump(args[1] + "/query" + queryNum);
+//                	queryNum++;
+//                } else if (exp != null) {
+//                	SelectOperator so= new SelectOperator(tableName.toString(), exp);
+//                	so.dump(args[1] + "/query" + queryNum);
+//                	queryNum++;
+//                } else if (sel.size() == 1 && sel.get(0).toString().equals("*")) {
+//                	ScanOperator scan= new ScanOperator(tableName.toString());
+//                    scan.dump(args[1] + "/query" + queryNum);
+//                    queryNum++;
+//                }
             }
         } catch (Exception e) {
             System.err.println("Exception occurred during parsing");

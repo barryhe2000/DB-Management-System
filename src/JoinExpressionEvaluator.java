@@ -1,10 +1,14 @@
 import java.util.Stack;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
 import net.sf.jsqlparser.expression.CaseExpression;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
+import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.InverseExpression;
@@ -41,20 +45,19 @@ import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
-public class ExpressionEvaluator implements ExpressionVisitor {
+public class JoinExpressionEvaluator implements ExpressionVisitor {
 	
-	private Stack<Object> stack;
-	private Tuple tuple;
+	private Stack<Expression> stack;
+	private Map<String, List<Expression>> requirements;
 	
-	public ExpressionEvaluator(Tuple tuple) {
-		stack = new Stack<>();
-		this.tuple = tuple;
-	}
-	
-	public Stack<Object> getStack() {
+	public Stack<Expression> getStack() {
 		return stack;
 	}
-
+	
+	public Map<String, List<Expression>> getRequirements() {
+		return requirements;
+	}
+	
 	@Override
 	public void visit(NullValue arg0) {
 		throw new UnsupportedOperationException();
@@ -87,7 +90,7 @@ public class ExpressionEvaluator implements ExpressionVisitor {
 
 	@Override
 	public void visit(LongValue arg0) {
-		stack.push(arg0.getValue());
+		stack.push(arg0);
 	}
 
 	@Override
@@ -148,14 +151,6 @@ public class ExpressionEvaluator implements ExpressionVisitor {
 	public void visit(AndExpression arg0) {
 		arg0.getLeftExpression().accept(this);
 		arg0.getRightExpression().accept(this);
-		Object right = stack.pop();
-		Object left = stack.pop();
-		//may be unnecessary to evaluate numeric conditionals such as 5 AND 4
-		if (right.getClass() == Long.class && left.getClass() == Long.class)
-			stack.push(((Long) right != 0) && ((Long) left != 0));
-		else if (right.getClass() == Long.class) stack.push(left);
-		else if (left.getClass() == Long.class) stack.push(((Long) left != 0) && (Boolean) right); 
-		else stack.push((Boolean) left && (Boolean) right);
 	}
 
 	@Override
@@ -174,21 +169,69 @@ public class ExpressionEvaluator implements ExpressionVisitor {
 	public void visit(EqualsTo arg0) { 
 		arg0.getLeftExpression().accept(this);
 		arg0.getRightExpression().accept(this);
-		stack.push(stack.pop().equals(stack.pop()));
+		Expression right = stack.pop();
+		Expression left = stack.pop();
+		EqualsTo eq = new EqualsTo();
+		eq.setLeftExpression(left);
+		eq.setRightExpression(right);
+		if(left.getClass() == Column.class) {
+			String tableName = ((Column) left).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(eq);
+			requirements.put(tableName, expList);
+		}
+		if(right.getClass() == Column.class) {
+			String tableName = ((Column) right).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(eq);
+			requirements.put(tableName, expList);
+		}
 	}
 
 	@Override
 	public void visit(GreaterThan arg0) {
 		arg0.getLeftExpression().accept(this);
 		arg0.getRightExpression().accept(this);
-		stack.push((Long) stack.pop() < (Long) stack.pop());
+		Expression right = stack.pop();
+		Expression left = stack.pop();
+		GreaterThan gt = new GreaterThan();
+		gt.setLeftExpression(left);
+		gt.setRightExpression(right);
+		if(left.getClass() == Column.class) {
+			String tableName = ((Column) left).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(gt);
+			requirements.put(tableName, expList);
+		}
+		if(right.getClass() == Column.class) {
+			String tableName = ((Column) right).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(gt);
+			requirements.put(tableName, expList);
+		}
 	}
 
 	@Override
 	public void visit(GreaterThanEquals arg0) {
 		arg0.getLeftExpression().accept(this);
 		arg0.getRightExpression().accept(this);
-		stack.push((Long) stack.pop() <= (Long) stack.pop());
+		Expression right = stack.pop();
+		Expression left = stack.pop();
+		GreaterThanEquals gt = new GreaterThanEquals();
+		gt.setLeftExpression(left);
+		gt.setRightExpression(right);
+		if(left.getClass() == Column.class) {
+			String tableName = ((Column) left).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(gt);
+			requirements.put(tableName, expList);
+		}
+		if(right.getClass() == Column.class) {
+			String tableName = ((Column) right).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(gt);
+			requirements.put(tableName, expList);
+		}
 	}
 
 	@Override
@@ -213,29 +256,74 @@ public class ExpressionEvaluator implements ExpressionVisitor {
 	public void visit(MinorThan arg0) {
 		arg0.getLeftExpression().accept(this);
 		arg0.getRightExpression().accept(this);
-		stack.push((Long) stack.pop() > (Long) stack.pop());
+		Expression right = stack.pop();
+		Expression left = stack.pop();
+		MinorThan mt = new MinorThan();
+		mt.setLeftExpression(left);
+		mt.setRightExpression(right);
+		if(left.getClass() == Column.class) {
+			String tableName = ((Column) left).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(mt);
+			requirements.put(tableName, expList);
+		}
+		if(right.getClass() == Column.class) {
+			String tableName = ((Column) right).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(mt);
+			requirements.put(tableName, expList);
+		}
 	}
 
 	@Override
 	public void visit(MinorThanEquals arg0) {
 		arg0.getLeftExpression().accept(this);
 		arg0.getRightExpression().accept(this);
-		stack.push((Long) stack.pop() >= (Long) stack.pop());
+		Expression right = stack.pop();
+		Expression left = stack.pop();
+		MinorThanEquals mt = new MinorThanEquals();
+		mt.setLeftExpression(left);
+		mt.setRightExpression(right);
+		if(left.getClass() == Column.class) {
+			String tableName = ((Column) left).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(mt);
+			requirements.put(tableName, expList);
+		}
+		if(right.getClass() == Column.class) {
+			String tableName = ((Column) right).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(mt);
+			requirements.put(tableName, expList);
+		}
 	}
 
 	@Override
 	public void visit(NotEqualsTo arg0) {
 		arg0.getLeftExpression().accept(this);
 		arg0.getRightExpression().accept(this);
-		stack.push(!stack.pop().equals(stack.pop()));
+		Expression right = stack.pop();
+		Expression left = stack.pop();
+		NotEqualsTo eq = new NotEqualsTo();
+		eq.setLeftExpression(left);
+		eq.setRightExpression(right);
+		if(left.getClass() == Column.class) {
+			String tableName = ((Column) left).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(eq);
+			requirements.put(tableName, expList);
+		}
+		if(right.getClass() == Column.class) {
+			String tableName = ((Column) right).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(eq);
+			requirements.put(tableName, expList);
+		}
 	}
 
 	@Override
 	public void visit(Column arg0) {
-		String tableName = arg0.getTable().getName();
-    	String colName = arg0.getColumnName();
-    	int colIndex = Main.getTableHeaders().get(tableName).indexOf(colName);
-    	stack.push(Long.parseLong(tuple.getRowElement(colIndex)));
+    	stack.push(arg0);
 	}
 
 	@Override
@@ -303,4 +391,5 @@ public class ExpressionEvaluator implements ExpressionVisitor {
 		throw new UnsupportedOperationException();
 		
 	}
+
 }

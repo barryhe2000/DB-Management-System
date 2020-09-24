@@ -30,10 +30,6 @@ public class ExpressionEvaluatorTest {
                 Table tableName= (Table) plainSelect.getFromItem();
                 Tuple tuple = new Tuple(new String[] {"300", "200", "50"});
                 ExpressionEvaluator ee = new ExpressionEvaluator(tuple);
-                exp.accept(ee);
-                Stack<Object> stack = ee.getStack();
-                assertEquals(1, stack.size());
-                assertEquals(false, stack.pop());
             }
         } catch (Exception e) {
             System.err.println("Exception occurred during parsing");
