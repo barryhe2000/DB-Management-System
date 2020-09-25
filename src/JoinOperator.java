@@ -15,7 +15,11 @@ public class JoinOperator extends ScanOperator {
 	List<Joint> joinTables;
 	Tuple[] arrTuple;
 	Tuple t;
-
+	
+	/**
+	* Constructor for SelectItemEvaluator class.
+	* @param tuple, tuple (table row) to evaluate SelectItem on
+	*/
 	public JoinOperator(String fileName, List<FromItem> joinList, Expression expression) {
 		super(fileName);
 		this.expression = expression;

@@ -14,6 +14,10 @@ public class SelectItemEvaluator implements SelectItemVisitor {
 	Tuple tuple;
 	Tuple tuple2;
 	
+	/**
+	* Constructor for SelectItemEvaluator class.
+	* @param tuple, tuple (table row) to evaluate SelectItem on
+	*/
 	public SelectItemEvaluator(Tuple tuple, Tuple tuple2) {
 		stack = new Stack<>();
 		this.tuple = tuple;
