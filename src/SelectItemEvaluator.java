@@ -12,10 +12,12 @@ public class SelectItemEvaluator implements SelectItemVisitor {
 	
 	Stack<List<String>> stack;
 	Tuple tuple;
+	Tuple tuple2;
 	
-	public SelectItemEvaluator(Tuple tuple) {
+	public SelectItemEvaluator(Tuple tuple, Tuple tuple2) {
 		stack = new Stack<>();
 		this.tuple = tuple;
+		this.tuple2 = tuple2;
 	}
 	
 	public Stack<List<String>> getStack() {
@@ -35,7 +37,7 @@ public class SelectItemEvaluator implements SelectItemVisitor {
 	@Override
 	public void visit(SelectExpressionItem arg0) {
 		Expression expr = arg0.getExpression();
-		ExpressionEvaluator e = new ExpressionEvaluator(tuple);
+		ExpressionEvaluator e = new ExpressionEvaluator(tuple, null);
 		expr.accept(e);
 		List<String> strList = new ArrayList<>();
 		strList.add(e.getStack().pop().toString());

@@ -1,5 +1,6 @@
 import java.util.Stack;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,6 +50,11 @@ public class JoinExpressionEvaluator implements ExpressionVisitor {
 	
 	private Stack<Expression> stack;
 	private Map<String, List<Expression>> requirements;
+	
+	public JoinExpressionEvaluator() {
+		stack = new Stack<>();
+		requirements = new HashMap<>();
+	}
 	
 	public Stack<Expression> getStack() {
 		return stack;
@@ -174,14 +180,20 @@ public class JoinExpressionEvaluator implements ExpressionVisitor {
 		EqualsTo eq = new EqualsTo();
 		eq.setLeftExpression(left);
 		eq.setRightExpression(right);
-		if(left.getClass() == Column.class) {
+		if(left.getClass() == Column.class && right.getClass() != Column.class) {
 			String tableName = ((Column) left).getTable().getName();
 			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
 			expList.add(eq);
 			requirements.put(tableName, expList);
 		}
-		if(right.getClass() == Column.class) {
+		if(right.getClass() == Column.class && left.getClass() != Column.class) {
 			String tableName = ((Column) right).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(eq);
+			requirements.put(tableName, expList);
+		}
+		if(left.getClass() == Column.class && right.getClass() == Column.class) {
+			String tableName = ((Column) left).getTable().getName() + " " + ((Column) right).getTable().getName();
 			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
 			expList.add(eq);
 			requirements.put(tableName, expList);
@@ -197,14 +209,20 @@ public class JoinExpressionEvaluator implements ExpressionVisitor {
 		GreaterThan gt = new GreaterThan();
 		gt.setLeftExpression(left);
 		gt.setRightExpression(right);
-		if(left.getClass() == Column.class) {
+		if(left.getClass() == Column.class && right.getClass() != Column.class) {
 			String tableName = ((Column) left).getTable().getName();
 			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
 			expList.add(gt);
 			requirements.put(tableName, expList);
 		}
-		if(right.getClass() == Column.class) {
+		if(right.getClass() == Column.class && left.getClass() != Column.class) {
 			String tableName = ((Column) right).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(gt);
+			requirements.put(tableName, expList);
+		}
+		if(left.getClass() == Column.class && right.getClass() == Column.class) {
+			String tableName = ((Column) left).getTable().getName() + " " + ((Column) right).getTable().getName();
 			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
 			expList.add(gt);
 			requirements.put(tableName, expList);
@@ -220,14 +238,20 @@ public class JoinExpressionEvaluator implements ExpressionVisitor {
 		GreaterThanEquals gt = new GreaterThanEquals();
 		gt.setLeftExpression(left);
 		gt.setRightExpression(right);
-		if(left.getClass() == Column.class) {
+		if(left.getClass() == Column.class && right.getClass() != Column.class) {
 			String tableName = ((Column) left).getTable().getName();
 			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
 			expList.add(gt);
 			requirements.put(tableName, expList);
 		}
-		if(right.getClass() == Column.class) {
+		if(right.getClass() == Column.class && left.getClass() != Column.class) {
 			String tableName = ((Column) right).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(gt);
+			requirements.put(tableName, expList);
+		}
+		if(left.getClass() == Column.class && right.getClass() == Column.class) {
+			String tableName = ((Column) left).getTable().getName() + " " + ((Column) right).getTable().getName();
 			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
 			expList.add(gt);
 			requirements.put(tableName, expList);
@@ -261,14 +285,20 @@ public class JoinExpressionEvaluator implements ExpressionVisitor {
 		MinorThan mt = new MinorThan();
 		mt.setLeftExpression(left);
 		mt.setRightExpression(right);
-		if(left.getClass() == Column.class) {
+		if(left.getClass() == Column.class && right.getClass() != Column.class) {
 			String tableName = ((Column) left).getTable().getName();
 			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
 			expList.add(mt);
 			requirements.put(tableName, expList);
 		}
-		if(right.getClass() == Column.class) {
+		if(right.getClass() == Column.class && left.getClass() != Column.class) {
 			String tableName = ((Column) right).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(mt);
+			requirements.put(tableName, expList);
+		}
+		if(left.getClass() == Column.class && right.getClass() == Column.class) {
+			String tableName = ((Column) left).getTable().getName() + " " + ((Column) right).getTable().getName();
 			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
 			expList.add(mt);
 			requirements.put(tableName, expList);
@@ -284,14 +314,20 @@ public class JoinExpressionEvaluator implements ExpressionVisitor {
 		MinorThanEquals mt = new MinorThanEquals();
 		mt.setLeftExpression(left);
 		mt.setRightExpression(right);
-		if(left.getClass() == Column.class) {
+		if(left.getClass() == Column.class && right.getClass() != Column.class) {
 			String tableName = ((Column) left).getTable().getName();
 			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
 			expList.add(mt);
 			requirements.put(tableName, expList);
 		}
-		if(right.getClass() == Column.class) {
+		if(right.getClass() == Column.class && left.getClass() != Column.class) {
 			String tableName = ((Column) right).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(mt);
+			requirements.put(tableName, expList);
+		}
+		if(left.getClass() == Column.class && right.getClass() == Column.class) {
+			String tableName = ((Column) left).getTable().getName() + " " + ((Column) right).getTable().getName();
 			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
 			expList.add(mt);
 			requirements.put(tableName, expList);
@@ -307,14 +343,20 @@ public class JoinExpressionEvaluator implements ExpressionVisitor {
 		NotEqualsTo eq = new NotEqualsTo();
 		eq.setLeftExpression(left);
 		eq.setRightExpression(right);
-		if(left.getClass() == Column.class) {
+		if(left.getClass() == Column.class && right.getClass() != Column.class) {
 			String tableName = ((Column) left).getTable().getName();
 			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
 			expList.add(eq);
 			requirements.put(tableName, expList);
 		}
-		if(right.getClass() == Column.class) {
+		if(right.getClass() == Column.class && left.getClass() != Column.class) {
 			String tableName = ((Column) right).getTable().getName();
+			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
+			expList.add(eq);
+			requirements.put(tableName, expList);
+		}
+		if(left.getClass() == Column.class && right.getClass() == Column.class) {
+			String tableName = ((Column) left).getTable().getName() + " " + ((Column) right).getTable().getName();
 			List<Expression> expList = requirements.getOrDefault(tableName, new ArrayList<Expression>());
 			expList.add(eq);
 			requirements.put(tableName, expList);

@@ -45,10 +45,12 @@ public class ExpressionEvaluator implements ExpressionVisitor {
 	
 	private Stack<Object> stack;
 	private Tuple tuple;
+	private Tuple tuple2;
 	
-	public ExpressionEvaluator(Tuple tuple) {
+	public ExpressionEvaluator(Tuple tuple, Tuple tuple2) {
 		stack = new Stack<>();
 		this.tuple = tuple;
+		this.tuple2 = tuple2;
 	}
 	
 	public Stack<Object> getStack() {
@@ -235,7 +237,8 @@ public class ExpressionEvaluator implements ExpressionVisitor {
 		String tableName = arg0.getTable().getName();
     	String colName = arg0.getColumnName();
     	int colIndex = Main.getTableHeaders().get(tableName).indexOf(colName);
-    	stack.push(Long.parseLong(tuple.getRowElement(colIndex)));
+    	if (tuple.getTableName().equals(tableName)) stack.push(Long.parseLong(tuple.getRowElement(colIndex)));
+    	else stack.push(Long.parseLong(tuple2.getRowElement(colIndex)));
 	}
 
 	@Override

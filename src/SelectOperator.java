@@ -13,7 +13,7 @@ public class SelectOperator extends ScanOperator {
     	Tuple t = super.getNextTuple();
     	if (expression == null) return t;
     	while (t != null) {
-    		ExpressionEvaluator e = new ExpressionEvaluator(t);
+    		ExpressionEvaluator e = new ExpressionEvaluator(t, null);
     		expression.accept(e);
     		if (e.getStack().pop().equals(true)) return t;	
     		t = super.getNextTuple();

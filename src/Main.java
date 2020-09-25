@@ -9,7 +9,10 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.Statement;
+import net.sf.jsqlparser.statement.select.Distinct;
 import net.sf.jsqlparser.statement.select.FromItem;
+import net.sf.jsqlparser.statement.select.Join;
+import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
 import net.sf.jsqlparser.statement.select.SelectItem;
@@ -21,22 +24,36 @@ public class Main {
     private static Map<String, String> tablePath; //name of table to path of table
     private static Map<String, List<String>> tableHeaders; //name of table to column names of table
     private static int queryNum; //number of query output
+    private static String outputPath;
     
+    /**
+    * Returns the path to the "queries.sql" file. 
+    * @return queriesFile, the String path to the "queries.sql" file.
+    */
     public static String getQueriesFile() {
     	return queriesFile;
     }
     
+    /**
+    * Returns the path to the "schema.txt" file. 
+    * @return schema, the String path to the "schema.txt" file.
+    */
     public static String getSchema() {
     	return schema;
     }
     
+    /**
+    * Returns map of table names to the paths of the table. 
+    * @return tablePath, a Map that maps String table names to the String paths of the table.
+    */
     public static Map<String, String> getTablePath() {
     	return tablePath;
     }
     
     /**
-     * @return tableHeaders, maps table name to column headers
-     */
+    * Returns map of table names to the paths of the table. 
+    * @return tableHeaders, maps table name to column headers
+    */
     public static Map<String, List<String>> getTableHeaders() {
     	return tableHeaders;
     }
@@ -68,11 +85,16 @@ public class Main {
         }
     }
     
+    /**
+    * Main method of main class. Parses and interprets SQL commands.
+    * @param args, command line arguments
+    */
     //args[0] should be inputdir and args[1] should be outputdir
     //pipe output to outputdir as files starting from query1, query2, etc.
     public static void main(String[] args) throws FileNotFoundException {
         queriesFile= args[0] + "/queries.sql";
         schema= args[0] + "/db/schema.txt";
+        outputPath = args[1] + "/query";
         initDB(args[0]);
         try {
             CCJSqlParser parser= new CCJSqlParser(new FileReader(queriesFile));
@@ -83,28 +105,44 @@ public class Main {
                 List<SelectItem> sel= plainSelect.getSelectItems();
                 Expression exp= plainSelect.getWhere();
                 Table tableName= (Table) plainSelect.getFromItem();
-                List<FromItem> joinList = plainSelect.getJoins();
-                System.out.println(exp);
-                System.out.println(joinList);
-                //super important: make sure to only create one operator per query
-                //cannot have multiple operators created for the sake of parsing one query
-                //so incorporate some logic below to choose which operator to create after
-                //parsing the query
-//                if (joinList.size() > 0) {
-//                	
-//                } else if (sel.size() > 1 || sel.size() == 1 && !sel.get(0).toString().equals("*")) {
-//                	ProjectOperator project = new ProjectOperator(tableName.toString(), sel, exp);
-//                	project.dump(args[1] + "/query" + queryNum);
-//                	queryNum++;
-//                } else if (exp != null) {
-//                	SelectOperator so= new SelectOperator(tableName.toString(), exp);
-//                	so.dump(args[1] + "/query" + queryNum);
-//                	queryNum++;
-//                } else if (sel.size() == 1 && sel.get(0).toString().equals("*")) {
-//                	ScanOperator scan= new ScanOperator(tableName.toString());
-//                    scan.dump(args[1] + "/query" + queryNum);
-//                    queryNum++;
-//                }
+                List<Join> joinList = plainSelect.getJoins();
+                List<OrderByElement> orderElements = plainSelect.getOrderByElements();
+                Distinct d = plainSelect.getDistinct();
+                if (d != null) {
+                	List<Operator> lst = new ArrayList<>();
+                	lst.add(new SelectOperator(tableName.toString(), exp));
+                	DuplicateEliminationOperator de = new DuplicateEliminationOperator(tableName.toString(), sel, lst, orderElements.get(0));
+                	de.dump(outputPath + queryNum);
+                	queryNum++;
+                } else if (orderElements != null) {
+                	List<Operator> lst = new ArrayList<>();
+                	lst.add(new SelectOperator(tableName.toString(), exp));
+                	SortOperator so = new SortOperator(tableName.toString(), sel, lst, orderElements.get(0));
+                	so.dump(outputPath + queryNum);
+                	queryNum++;
+                } else if (joinList != null) {
+                	List<FromItem> joining = new ArrayList<>();
+                	for (Join j : joinList) {
+                		joining.add(j.getRightItem());
+                	}
+                	JoinOperator jo = new JoinOperator(tableName.toString(), joining, exp);
+                	jo.dump(outputPath + queryNum);
+                	queryNum++;
+                } else if (sel.size() > 1 || sel.size() == 1 && !sel.get(0).toString().equals("*")) {
+                	List<Operator> lst = new ArrayList<>();
+                	lst.add(new SelectOperator(tableName.toString(), exp));
+                	ProjectOperator project = new ProjectOperator(tableName.toString(), sel, lst);
+                	project.dump(outputPath + queryNum);
+                	queryNum++;
+                } else if (exp != null) {
+                	SelectOperator so= new SelectOperator(tableName.toString(), exp);
+                	so.dump(outputPath + queryNum);
+                	queryNum++;
+                } else if (sel.size() == 1 && sel.get(0).toString().equals("*")) {
+                	ScanOperator scan= new ScanOperator(tableName.toString());
+                    scan.dump(outputPath + queryNum);
+                    queryNum++;
+                }
             }
         } catch (Exception e) {
             System.err.println("Exception occurred during parsing");

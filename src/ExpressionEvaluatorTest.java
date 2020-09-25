@@ -28,8 +28,6 @@ public class ExpressionEvaluatorTest {
                 List<SelectItem> sel= plainSelect.getSelectItems();
                 Expression exp= plainSelect.getWhere();
                 Table tableName= (Table) plainSelect.getFromItem();
-                Tuple tuple = new Tuple(new String[] {"300", "200", "50"});
-                ExpressionEvaluator ee = new ExpressionEvaluator(tuple);
             }
         } catch (Exception e) {
             System.err.println("Exception occurred during parsing");
