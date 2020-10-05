@@ -126,7 +126,8 @@ public class JoinOperator extends ScanOperator {
 						}
 						if (t.getTableName().equals(twoTables[0])) one = t;
 						else if (t.getTableName().equals(twoTables[1])) two = t;
-						ee = new ExpressionEvaluator(one, two);
+						// need to add alias fix
+						ee = new ExpressionEvaluator(one, two, null);
 					} else {
 						Tuple one = null;
 						for(Tuple findTuple : arrTuple) {
@@ -134,7 +135,8 @@ public class JoinOperator extends ScanOperator {
 							if (findTuple.getTableName().equals(names)) one = findTuple;
 						}
 						if (t.getTableName().equals(names)) one = t;
-						ee = new ExpressionEvaluator(one, null);
+						// need to add alias fix
+						ee = new ExpressionEvaluator(one, null, null);
 					}
 					List<Expression> reqs = requirements.get(names);
 					for (Expression exp : reqs) {

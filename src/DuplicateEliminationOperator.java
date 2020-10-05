@@ -1,12 +1,15 @@
 import java.util.HashSet;
 import java.util.List;
+import java.util.HashMap;
 import net.sf.jsqlparser.statement.select.OrderByElement;
 import net.sf.jsqlparser.statement.select.SelectItem;
+import net.sf.jsqlparser.schema.Table;
 /**
 * Represents a Duplicate Elimination Operator (for DISTINCT) in the Iterator model of SQL.
 */
 public class DuplicateEliminationOperator extends SortOperator {
 	protected HashSet<Tuple> tupleSet = new HashSet<Tuple>();
+	protected HashMap<String, Table> aliasMap;
 	/**
 	* Constructor for DuplicateEliminationOperator class.
 	* @param filename, String name of table to apply operator to
@@ -14,9 +17,11 @@ public class DuplicateEliminationOperator extends SortOperator {
 	* @param expression, WHERE clause expression
 	* @param ord, ORDER BY clause expression
 	*/
-	public DuplicateEliminationOperator(String fileName, List<SelectItem> sel, List<Operator> children,
+	public DuplicateEliminationOperator(String fileName, List<SelectItem> sel, List<Operator> children, HashMap<String, Table> aliasMap,
 			OrderByElement ord) {
-		super(fileName, sel, children, ord);
+		super(fileName, sel, children, aliasMap, ord);
+		// idk if this is redundant
+		this.aliasMap = aliasMap;
 	}
 	@Override
 	/**

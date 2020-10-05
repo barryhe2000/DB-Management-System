@@ -105,19 +105,35 @@ public class Main {
                 List<SelectItem> sel= plainSelect.getSelectItems();
                 Expression exp= plainSelect.getWhere();
                 Table tableName= (Table) plainSelect.getFromItem();
+                // added alias, need to map to table name, need to do for joins too...
+                // does this work for for tableName given that it's casted?
+                // alias works now, but needs to work for columns
+                String alias = tableName.getAlias();
+//                System.out.println("alias is " + alias);
+                HashMap <String, Table> aliasMap = new HashMap<String, Table>();
+                String fileName = tableName.getName();
+//                System.out.println("file name before is " + fileName);
+                if(aliasMap.containsKey(fileName)) {
+                	fileName = aliasMap.get(fileName).toString();
+                }
+//                System.out.println("file name after is " + fileName);
+                
+                if(alias != null && !alias.isEmpty()) {
+                	aliasMap.put(alias,  tableName);
+                }
                 List<Join> joinList = plainSelect.getJoins();
                 List<OrderByElement> orderElements = plainSelect.getOrderByElements();
                 Distinct d = plainSelect.getDistinct();
                 if (d != null) {
                 	List<Operator> lst = new ArrayList<>();
-                	lst.add(new SelectOperator(tableName.toString(), exp));
-                	DuplicateEliminationOperator de = new DuplicateEliminationOperator(tableName.toString(), sel, lst, orderElements.get(0));
+                	lst.add(new SelectOperator(fileName, exp, aliasMap));
+                	DuplicateEliminationOperator de = new DuplicateEliminationOperator(fileName, sel, lst, aliasMap, orderElements.get(0));
                 	de.dump(outputPath + queryNum);
                 	queryNum++;
                 } else if (orderElements != null) {
                 	List<Operator> lst = new ArrayList<>();
-                	lst.add(new SelectOperator(tableName.toString(), exp));
-                	SortOperator so = new SortOperator(tableName.toString(), sel, lst, orderElements.get(0));
+                	lst.add(new SelectOperator(fileName, exp, aliasMap));
+                	SortOperator so = new SortOperator(fileName, sel, lst, aliasMap, orderElements.get(0));
                 	so.dump(outputPath + queryNum);
                 	queryNum++;
                 } else if (joinList != null) {
@@ -125,24 +141,26 @@ public class Main {
                 	for (Join j : joinList) {
                 		joining.add(j.getRightItem());
                 	}
-                	JoinOperator jo = new JoinOperator(tableName.toString(), joining, exp);
+                	JoinOperator jo = new JoinOperator(fileName, joining, exp);
                 	jo.dump(outputPath + queryNum);
                 	queryNum++;
                 } else if (sel.size() > 1 || sel.size() == 1 && !sel.get(0).toString().equals("*")) {
                 	List<Operator> lst = new ArrayList<>();
-                	lst.add(new SelectOperator(tableName.toString(), exp));
-                	ProjectOperator project = new ProjectOperator(tableName.toString(), sel, lst);
+                	lst.add(new SelectOperator(fileName, exp, aliasMap));
+                	ProjectOperator project = new ProjectOperator(fileName, sel, lst, aliasMap);
                 	project.dump(outputPath + queryNum);
                 	queryNum++;
                 } else if (exp != null) {
-                	SelectOperator so= new SelectOperator(tableName.toString(), exp);
+                	SelectOperator so= new SelectOperator(fileName, exp, aliasMap);
                 	so.dump(outputPath + queryNum);
                 	queryNum++;
                 } else if (sel.size() == 1 && sel.get(0).toString().equals("*")) {
-                	ScanOperator scan= new ScanOperator(tableName.toString());
+                	ScanOperator scan= new ScanOperator(fileName);
                     scan.dump(outputPath + queryNum);
                     queryNum++;
                 }
+                // clear aliasMap after each query
+                aliasMap.clear();
             }
         } catch (Exception e) {
             System.err.println("Exception occurred during parsing");

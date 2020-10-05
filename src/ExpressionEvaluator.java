@@ -1,4 +1,5 @@
 import java.util.Stack;
+import java.util.HashMap;
 
 import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
@@ -39,6 +40,7 @@ import net.sf.jsqlparser.expression.operators.relational.MinorThan;
 import net.sf.jsqlparser.expression.operators.relational.MinorThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
+import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
 public class ExpressionEvaluator implements ExpressionVisitor {
@@ -46,11 +48,13 @@ public class ExpressionEvaluator implements ExpressionVisitor {
 	private Stack<Object> stack;
 	private Tuple tuple;
 	private Tuple tuple2;
+	private HashMap<String, Table> aliasMap;
 	
-	public ExpressionEvaluator(Tuple tuple, Tuple tuple2) {
+	public ExpressionEvaluator(Tuple tuple, Tuple tuple2, HashMap<String, Table> aliasMap) {
 		stack = new Stack<>();
 		this.tuple = tuple;
 		this.tuple2 = tuple2;
+		this.aliasMap = aliasMap;
 	}
 	
 	public Stack<Object> getStack() {
@@ -235,6 +239,9 @@ public class ExpressionEvaluator implements ExpressionVisitor {
 	@Override
 	public void visit(Column arg0) {
 		String tableName = arg0.getTable().getName();
+		if(aliasMap != null && aliasMap.containsKey(tableName)) {
+			tableName = aliasMap.get(tableName).getName();
+		}
     	String colName = arg0.getColumnName();
     	int colIndex = Main.getTableHeaders().get(tableName).indexOf(colName);
     	if (tuple.getTableName().equals(tableName)) stack.push(Long.parseLong(tuple.getRowElement(colIndex)));
