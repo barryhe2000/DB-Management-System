@@ -1,6 +1,9 @@
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +23,7 @@ import net.sf.jsqlparser.statement.select.SelectItem;
 public class Main {
 
     private static String queriesFile; //path to queries.sql
+    private static Path queriesPath;
     private static String schema; //path to schema.txt
     private static Map<String, String> tablePath; //name of table to path of table
     private static Map<String, List<String>> tableHeaders; //name of table to column names of table
@@ -61,38 +65,42 @@ public class Main {
     /**
      * Initialize database to track schema and table headers.
      * @param inputdir, path to input directory
-     */
-    private static void initDB(String inputdir) throws FileNotFoundException {
-        tablePath= new HashMap<>();
+     */    
+    private static void initDB(String inputdir) throws IOException {
+    	tablePath= new HashMap<>();
         tableHeaders= new HashMap<>();
         queryNum= 1;
-        BufferedReader in= new BufferedReader(new FileReader(schema));
-        String line= null;
+        
+        Path dbPath = Paths.get(schema);
+        Charset charset = Charset.forName("UTF-8");
         try {
-            while ((line= in.readLine()) != null) {
-                String[] lineArr= line.split("\\s+");
-                String tableName= lineArr[0]; 
-                List<String> columnNames= new ArrayList<>();
-                for (int i= 1; i < lineArr.length; i++) {
-                    columnNames.add(lineArr[i]);
-                }
-                tableHeaders.put(tableName, columnNames);
-                tablePath.put(tableName, inputdir + "/db/data/" + tableName);
+        	List<String> lines = Files.readAllLines(dbPath, charset);
+            for (String line : lines) {
+	        	String[] lineArr= line.split("\\s+");
+	            String tableName= lineArr[0]; 
+	            List<String> columnNames= new ArrayList<>();
+	            for (int i= 1; i < lineArr.length; i++) {
+	                columnNames.add(lineArr[i]);
+	            }
+	            tableHeaders.put(tableName, columnNames);
+	            tablePath.put(tableName, inputdir + "/db/data/" + tableName);
             }
-            in.close();
+            
         } catch (Exception e) {
-            e.printStackTrace();
-        }
+        	e.printStackTrace();
+        }    
     }
     
     /**
     * Main method of main class. Parses and interprets SQL commands.
     * @param args, command line arguments
+    * @throws IOException 
     */
     //args[0] should be inputdir and args[1] should be outputdir
     //pipe output to outputdir as files starting from query1, query2, etc.
-    public static void main(String[] args) throws FileNotFoundException {
+    public static void main(String[] args) throws IOException {
         queriesFile= args[0] + "/queries.sql";
+        queriesPath = Paths.get(args[0],"/queries.sql");
         schema= args[0] + "/db/schema.txt";
         outputPath = args[1] + "/query";
         initDB(args[0]);

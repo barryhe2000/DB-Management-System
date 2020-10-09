@@ -1,4 +1,7 @@
-import java.io.FileWriter;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
 * Represents an Operator in the Iterator model of SQL.
@@ -32,14 +35,16 @@ public abstract class Operator {
     * @param outputName, String path of file to write to
     */
     public void dump(String outputName) {
+    	Path outputPath = Paths.get(outputName);
+		Tuple nextTuple= getNextTuple();
+		Charset charset = Charset.forName("UTF-8");
+		String outputStr = "";
     	try {
-    		FileWriter myWriter = new FileWriter(outputName);
-    		Tuple nextTuple= getNextTuple();
     		while (nextTuple != null) {
-    			myWriter.write(nextTuple.toString() + "\n");
+    			outputStr += nextTuple.toString() + "\n";
                 nextTuple= getNextTuple();
             }
-    		myWriter.close();
+    		Files.write(outputPath, outputStr.getBytes());
     	} catch (Exception e) {
     		System.err.println("Exception occurred during output dump");
     		e.printStackTrace();
