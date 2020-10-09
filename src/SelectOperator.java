@@ -1,7 +1,5 @@
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
-
-import java.io.IOException;
 import java.util.HashMap;
 
 public class SelectOperator extends ScanOperator {

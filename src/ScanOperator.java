@@ -1,9 +1,15 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
 
 public class ScanOperator extends Operator {
 	
-    private BufferedReader in;
+    private List<String> lines;
+	private int filePointer;
+	private Path nioPath;
+	private Charset charset = Charset.forName("UTF-8");
 
     public ScanOperator(String fileName) {
         super(fileName);
@@ -13,7 +19,11 @@ public class ScanOperator extends Operator {
     @Override public Tuple getNextTuple() {
     	String strRow;
     	try {
-    	    if ((strRow=in.readLine()) != null) return new Tuple(strRow.split(","), fileName);
+    		if (filePointer < lines.size() && (strRow=lines.get(filePointer)) != null) {
+    			filePointer++;
+    			return new Tuple(strRow.split(","), fileName);
+    		}
+    		filePointer++;
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
@@ -21,10 +31,13 @@ public class ScanOperator extends Operator {
     }
 
     @Override public void reset(String file) {
-        try {
-        	in= new BufferedReader(new FileReader(Main.getTablePath().get(file)));
-        } catch (Exception e) {
-        	e.printStackTrace();
-        } 
+    	filePointer = 0;
+    	nioPath = Paths.get(Main.getTablePath().get(file));
+		try {
+			this.lines = Files.readAllLines(nioPath, charset);
+		} catch(Exception e) {
+			System.out.println("Couldn't reset scan operator.");
+			e.printStackTrace();
+		}
     }
 }
