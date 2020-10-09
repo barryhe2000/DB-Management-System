@@ -1,6 +1,8 @@
-import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +21,7 @@ public class JoinOperator extends ScanOperator {
 	/**
 	* Constructor for SelectItemEvaluator class.
 	* @param tuple, tuple (table row) to evaluate SelectItem on
+	 * @throws IOException 
 	*/
 	public JoinOperator(String fileName, List<FromItem> joinList, Expression expression) {
 		super(fileName);
@@ -159,16 +162,17 @@ public class JoinOperator extends ScanOperator {
 	
 	class Joint {
 		
-		FileReader f;
-		BufferedReader in;
 		int order;
 		String tableName;
-		String path;
+		List<String> lines;
+		int filePointer;
+		Path nioPath;
+		Charset charset = Charset.forName("UTF-8");
 		
 		Joint(String path, int order, String tableName) throws IOException {
-			this.path = path;
-			f = new FileReader(path);
-			in = new BufferedReader(f);
+			this.nioPath = Paths.get(path);
+			this.filePointer = 0;
+			this.lines = Files.readAllLines(nioPath, charset);
 			this.order = order;
 			this.tableName = tableName;
 		}
@@ -180,7 +184,11 @@ public class JoinOperator extends ScanOperator {
 		Tuple getNextTuple() {
 			String strRow;
 	    	try {
-	    	    if ((strRow=in.readLine()) != null) return new Tuple(strRow.split(","), tableName);
+	    		if (filePointer < lines.size() && (strRow=lines.get(filePointer)) != null) {
+	    			filePointer++;
+	    			return new Tuple(strRow.split(","), tableName);
+	    		}
+	    		filePointer++;
 			} catch (Exception e) {
 				e.printStackTrace();
 			} 
@@ -188,8 +196,7 @@ public class JoinOperator extends ScanOperator {
 		}
 		
 		void reset() throws IOException {
-			f = new FileReader(path);
-			in = new BufferedReader(f);
+			filePointer = 0;
 		}
 	}
 }
