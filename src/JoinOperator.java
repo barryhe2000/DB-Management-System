@@ -164,15 +164,19 @@ public class JoinOperator extends ScanOperator {
 		
 		int order;
 		String tableName;
-		List<String> lines;
-		int filePointer;
-		Path nioPath;
-		Charset charset = Charset.forName("UTF-8");
+//		List<String> lines;
+//		int filePointer;
+//		Path nioPath;
+//		Charset charset = Charset.forName("UTF-8");
+		private TupleReader tr;
 		
 		Joint(String path, int order, String tableName) throws IOException {
-			this.nioPath = Paths.get(path);
-			this.filePointer = 0;
-			this.lines = Files.readAllLines(nioPath, charset);
+			// what's the point of path here???
+			// don't need path because redundant
+			tr = new TupleReader(tableName);
+//			this.nioPath = Paths.get(path);
+//			this.filePointer = 0;
+//			this.lines = Files.readAllLines(nioPath, charset);
 			this.order = order;
 			this.tableName = tableName;
 		}
@@ -182,21 +186,23 @@ public class JoinOperator extends ScanOperator {
 		}
 		
 		Tuple getNextTuple() {
-			String strRow;
-	    	try {
-	    		if (filePointer < lines.size() && (strRow=lines.get(filePointer)) != null) {
-	    			filePointer++;
-	    			return new Tuple(strRow.split(","), tableName);
-	    		}
-	    		filePointer++;
-			} catch (Exception e) {
-				e.printStackTrace();
-			} 
-			return null;
+			return tr.readNextTuple();
+//			String strRow;
+//	    	try {
+//	    		if (filePointer < lines.size() && (strRow=lines.get(filePointer)) != null) {
+//	    			filePointer++;
+//	    			return new Tuple(strRow.split(","), tableName);
+//	    		}
+//	    		filePointer++;
+//			} catch (Exception e) {
+//				e.printStackTrace();
+//			} 
+//			return null;
 		}
 		
 		void reset() throws IOException {
-			filePointer = 0;
+//			filePointer = 0;
+			tr = new TupleReader(fileName);
 		}
 	}
 }
