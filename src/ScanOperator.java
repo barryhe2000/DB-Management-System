@@ -10,6 +10,7 @@ public class ScanOperator extends Operator {
 	private int filePointer;
 	private Path nioPath;
 	private Charset charset = Charset.forName("UTF-8");
+	private TupleReader tr = new TupleReader(fileName);
 
     public ScanOperator(String fileName) {
         super(fileName);
@@ -17,27 +18,29 @@ public class ScanOperator extends Operator {
     }
 
     @Override public Tuple getNextTuple() {
-    	String strRow;
-    	try {
-    		if (filePointer < lines.size() && (strRow=lines.get(filePointer)) != null) {
-    			filePointer++;
-    			return new Tuple(strRow.split(","), fileName);
-    		}
-    		filePointer++;
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
-		return null;
+    	return tr.readNextTuple();
+//    	String strRow;
+//    	try {
+//    		if (filePointer < lines.size() && (strRow=lines.get(filePointer)) != null) {
+//    			filePointer++;
+//    			return new Tuple(strRow.split(","), fileName);
+//    		}
+//    		filePointer++;
+//		} catch (Exception e) {
+//			e.printStackTrace();
+//		} 
+//		return null;
     }
 
     @Override public void reset(String file) {
-    	filePointer = 0;
-    	nioPath = Paths.get(Main.getTablePath().get(file));
-		try {
-			this.lines = Files.readAllLines(nioPath, charset);
-		} catch(Exception e) {
-			System.out.println("Couldn't reset scan operator.");
-			e.printStackTrace();
-		}
+    	tr = new TupleReader(fileName);
+//    	filePointer = 0;
+//    	nioPath = Paths.get(Main.getTablePath().get(file));
+//		try {
+//			this.lines = Files.readAllLines(nioPath, charset);
+//		} catch(Exception e) {
+//			System.out.println("Couldn't reset scan operator.");
+//			e.printStackTrace();
+//		}
     }
 }
