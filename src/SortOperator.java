@@ -19,12 +19,13 @@ public class SortOperator extends ProjectOperator {
 	protected HashMap<String, Table> aliasMap;
 	
 	/**
-	* Constructor for SortOperator class.
-	* @param filename, String name of table to apply operator to
-	* @param sel, list of SelectItems representing columns to select
-	* @param expression, WHERE clause expression
-	* @param ord, ORDER BY clause expression
-	*/
+	 * Constructor for SortOperator class.
+	 * @param filename, String name of table to apply operator to
+	 * @param sel, list of SelectItems representing columns to select
+	 * @param children, child operators of the operator
+	 * @param aliasMap, map of aliases to tables
+	 * @param ord, ORDER BY clause expression
+	 */
 	public SortOperator(String fileName, List<SelectItem> sel, List<Operator> children, HashMap<String, Table> aliasMap, OrderByElement ord) {
 		super(fileName, sel, children, aliasMap);
 		Tuple nextTuple= super.getNextTuple();
@@ -33,8 +34,13 @@ public class SortOperator extends ProjectOperator {
             nextTuple= getNextTuple();
         }
 		Expression expr = ord.getExpression();
-		final boolean isAsc = ord.isAsc(); // i feel like this also shouldn't be final
-		// actually maybe do ord.getExpression, but for Tuple, input a tuple of length with indices in it
+		
+		// TODO - Find out if there is a way to implement isAsc without the final keyword
+		
+		final boolean isAsc = ord.isAsc(); 
+		
+		// TODO - for Tuple, input a tuple of length with indices in it and use ord.getExpression()
+		
 		String[] ordList = new String[tupleList.get(0).getSize()];
 		for(int i = 0; i < tupleList.get(0).getSize(); i++) {
 			ordList[i] = String.valueOf(i);
@@ -59,14 +65,14 @@ public class SortOperator extends ProjectOperator {
 		Collections.sort(tupleList, tupleComparator);
 		row = 0;
 	}
-	@Override
+	
 	/**
-	* Returns the next tuple (table row) in table denoted by fileName
-	* and sorted according to ord
-	* @return tuple, next tuple in table denoted by fileName
-	* and sorted according to ord
-	*/
-	public Tuple getNextTuple() {
+	 * Returns the next tuple (table row) in table denoted by fileName
+	 * and sorted according to ord
+	 * @return tuple, next tuple in table denoted by fileName
+	 * and sorted according to ord
+	 */
+	@Override public Tuple getNextTuple() {
 		int temp = row;
 		row++;
 		return tupleList.get(temp);

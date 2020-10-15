@@ -46,20 +46,34 @@ import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
+/**
+ * Represents an Expression Evaluator with the visitor pattern for JOIN expressions
+ */
 public class JoinExpressionEvaluator implements ExpressionVisitor {
 	
 	private Stack<Expression> stack;
 	private Map<String, List<Expression>> requirements;
 	
+	/**
+	 * Constructor for JoinExpressionEvaluator class
+	 */
 	public JoinExpressionEvaluator() {
 		stack = new Stack<>();
 		requirements = new HashMap<>();
 	}
 	
+	/**
+	 * Returns stack of query output rows
+	 * @return stack, stack of query output rows
+	 */
 	public Stack<Expression> getStack() {
 		return stack;
 	}
 	
+	/**
+	 * Returns map of requirements for join expression
+	 * @return requirements, map of requirements for join expression
+	 */
 	public Map<String, List<Expression>> getRequirements() {
 		return requirements;
 	}

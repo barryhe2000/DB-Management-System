@@ -43,6 +43,9 @@ import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
+/**
+ * Represents an Expression Evaluator with the visitor pattern
+ */
 public class ExpressionEvaluator implements ExpressionVisitor {
 	
 	private Stack<Object> stack;
@@ -50,6 +53,12 @@ public class ExpressionEvaluator implements ExpressionVisitor {
 	private Tuple tuple2;
 	private HashMap<String, Table> aliasMap;
 	
+    /**
+	 * Constructor for ExpressionEvaluator class
+	 * @param tuple, first tuple to evaluate
+	 * @param tuple2, second tuple to evaluate
+	 * @param aliasMap, map of aliases to table names
+	 */
 	public ExpressionEvaluator(Tuple tuple, Tuple tuple2, HashMap<String, Table> aliasMap) {
 		stack = new Stack<>();
 		this.tuple = tuple;
@@ -57,6 +66,10 @@ public class ExpressionEvaluator implements ExpressionVisitor {
 		this.aliasMap = aliasMap;
 	}
 	
+	/**
+	 * Returns stack of query output rows
+	 * @return stack, stack of query output rows
+	 */
 	public Stack<Object> getStack() {
 		return stack;
 	}

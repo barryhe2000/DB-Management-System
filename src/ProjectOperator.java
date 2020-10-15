@@ -18,15 +18,26 @@ public class ProjectOperator extends Operator {
 	/**
 	* Constructor for ProjectOperator class.
 	* @param filename, String name of table to apply operator to
+	* @param sel, list of SelectItems representing columns to select
+	* @param children, child operators of the operator
+	* @param aliasMap, map of aliases to tables
 	*/
     public ProjectOperator(String fileName, List<SelectItem> sel, List<Operator> children, HashMap<String, Table> aliasMap) {
         super(fileName);
         this.sel = sel;
         this.children = children;
-        // problem here is that an alias could also be for a column...
+        
+        // TODO - add aliasing support for Columns
+        
         this.aliasMap = aliasMap;
     }
 
+    /**
+	* Returns the next tuple (table row) in table denoted by fileName
+	* and sorted according to ord
+	* @return tuple, next tuple in table denoted by fileName
+	* with columns specified by sel
+	*/
     @Override public Tuple getNextTuple() {
     	Tuple t = children.get(0).getNextTuple();
     	while(t != null) {
@@ -41,9 +52,8 @@ public class ProjectOperator extends Operator {
     	return null;
     }
 
+    // TODO - fix reset
 	@Override
 	public void reset(String file) {
-		
-		
 	}
 }

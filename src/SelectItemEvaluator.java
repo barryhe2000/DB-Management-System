@@ -10,6 +10,9 @@ import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItemVisitor;
 import net.sf.jsqlparser.schema.Table;
 
+/**
+ * Represents a Select Item Evaluator with the visitor pattern
+ */
 public class SelectItemEvaluator implements SelectItemVisitor {
 	
 	Stack<List<String>> stack;
@@ -28,6 +31,10 @@ public class SelectItemEvaluator implements SelectItemVisitor {
 		this.aliasMap = aliasMap;
 	}
 	
+	/**
+	 * Returns stack of query output rows
+	 * @return stack, stack of query output rows
+	 */
 	public Stack<List<String>> getStack() {
 		return stack;
 	}

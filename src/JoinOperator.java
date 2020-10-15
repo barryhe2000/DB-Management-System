@@ -1,8 +1,4 @@
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +7,9 @@ import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.schema.Table;
 import net.sf.jsqlparser.statement.select.FromItem;
 
+/**
+ * Represents a Join Operator (for JOIN) in the Iterator model of SQL.
+ */
 public class JoinOperator extends ScanOperator {
 	
 	protected Expression expression;
@@ -19,10 +18,11 @@ public class JoinOperator extends ScanOperator {
 	Tuple t;
 	
 	/**
-	* Constructor for SelectItemEvaluator class.
-	* @param tuple, tuple (table row) to evaluate SelectItem on
-	 * @throws IOException 
-	*/
+	 * Constructor for JoinOperator class.
+	 * @param tuple, tuple (table row) to evaluate SelectItem on
+	 * @param joinList, list of JOIN operator conditions
+	 * @param expression, expression for JOIN operator
+	 */
 	public JoinOperator(String fileName, List<FromItem> joinList, Expression expression) {
 		super(fileName);
 		this.expression = expression;
@@ -33,7 +33,7 @@ public class JoinOperator extends ScanOperator {
 		for (int i = 0; i < joinList.size(); i++) {
 			String tName = ((Table) joinList.get(i)).getName();
 			try {
-				Joint j = new Joint(Main.getTablePath().get(tName), i, tName);
+				Joint j = new Joint(i, tName);
 				joinTables.add(j);
 				joinTuples.add(j.getNextTuple());
 			} catch (Exception e) {
@@ -48,11 +48,18 @@ public class JoinOperator extends ScanOperator {
 		this.arrTuple = arrTuple;
 	}
 	
-	@Override
-	public void reset(String file) {
-		
+	/**
+     * Resets class instance such that getNextTuple() starts back at the table head.
+     */
+	@Override public void reset(String file) {
+		// TODO - Add reset for Join Operator or delete if same as scan
 	}
 	
+	/**
+	 * Combines tuples based on JOIN conditions
+	 * @param head, Tuple to combine
+	 * @return head, combined Tuple
+	 */
 	private Tuple combineJoin(Tuple head) {
 		for (Tuple part : arrTuple) {
 			head = head.combine(part);
@@ -60,8 +67,11 @@ public class JoinOperator extends ScanOperator {
 		return head;
 	}
 	
-	@Override
-	public Tuple getNextTuple() {
+	/**
+	 * Returns the next tuple in the JOIN query
+	 * @return temp, next tuple in table that meets operator conditions
+	 */
+	@Override public Tuple getNextTuple() {
 		Tuple temp = t;
 		while (temp != null) {
 			if (expression == null) {
@@ -129,7 +139,7 @@ public class JoinOperator extends ScanOperator {
 						}
 						if (t.getTableName().equals(twoTables[0])) one = t;
 						else if (t.getTableName().equals(twoTables[1])) two = t;
-						// need to add alias fix
+						// TODO - add alias fix
 						ee = new ExpressionEvaluator(one, two, null);
 					} else {
 						Tuple one = null;
@@ -138,7 +148,7 @@ public class JoinOperator extends ScanOperator {
 							if (findTuple.getTableName().equals(names)) one = findTuple;
 						}
 						if (t.getTableName().equals(names)) one = t;
-						// need to add alias fix
+						// TODO - add alias fix
 						ee = new ExpressionEvaluator(one, null, null);
 					}
 					List<Expression> reqs = requirements.get(names);
@@ -160,48 +170,44 @@ public class JoinOperator extends ScanOperator {
 		return null;
 	}
 	
+	/**
+	 * Represents a Joined Table.
+	 */
 	class Joint {
-		
-		int order;
 		String tableName;
-//		List<String> lines;
-//		int filePointer;
-//		Path nioPath;
-//		Charset charset = Charset.forName("UTF-8");
 		private TupleReader tr;
 		
-		Joint(String path, int order, String tableName) throws IOException {
-			// what's the point of path here???
-			// don't need path because redundant
+		/**
+	     * Constructor for Joint class
+	     * @param tableName, the table name
+	     * @throws IOException
+	     */
+		Joint(int order, String tableName) throws IOException {
 			tr = new TupleReader(tableName);
-//			this.nioPath = Paths.get(path);
-//			this.filePointer = 0;
-//			this.lines = Files.readAllLines(nioPath, charset);
-			this.order = order;
 			this.tableName = tableName;
 		}
 		
+		/**
+	     * Returns the table name.
+	     * @return tableName, the String name of the table
+	     */
 		String getTableName() {
 			return tableName;
 		}
 		
+		/**
+	     * Conditionally returns the next tuple (table row) 
+	     * from table denoted by fileName.
+	     * @return tuple, next tuple in table that meets operator conditions
+	     */
 		Tuple getNextTuple() {
 			return tr.readNextTuple();
-//			String strRow;
-//	    	try {
-//	    		if (filePointer < lines.size() && (strRow=lines.get(filePointer)) != null) {
-//	    			filePointer++;
-//	    			return new Tuple(strRow.split(","), tableName);
-//	    		}
-//	    		filePointer++;
-//			} catch (Exception e) {
-//				e.printStackTrace();
-//			} 
-//			return null;
 		}
 		
+		/**
+	     * Resets class instance such that getNextTuple() starts back at the table head.
+	     */
 		void reset() throws IOException {
-//			filePointer = 0;
 			tr = new TupleReader(fileName);
 		}
 	}
