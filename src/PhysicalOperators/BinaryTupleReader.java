@@ -1,18 +1,22 @@
+package PhysicalOperators;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.ArrayList;
+import java.util.List;
 
-/**
- * Represents a NIO object that reads tuples from a table
- */
-public class TupleReader {
+import Main.Main;
+
+public class BinaryTupleReader {
 	private String fileName;
 	private FileInputStream fis;
 	FileChannel channel;
-	private ByteBuffer bb = ByteBuffer.allocate(4096);
+	final int pageSize = 4096;
+	private ByteBuffer bb = ByteBuffer.allocate(pageSize);
 	private int idx = 0;
 	private String[] table;
 	
@@ -20,7 +24,7 @@ public class TupleReader {
 	 * Constructor for TupleReader class.
 	 * @param filename, String name of table to read
 	 */
-	public TupleReader(String fileName) {
+	public BinaryTupleReader(String fileName) {
 		this.fileName = fileName;
 		
 		// creates a channel from file fileName to ByteBuffer bb
@@ -30,14 +34,19 @@ public class TupleReader {
 			bb.clear();
 			try {
 				// reads from the ByteBuffer and stores String content in strRow
-				String strTable = "";
+//				String strTable = "";
+				List<String> strList = new ArrayList<String>();
 				while(channel.read(bb) > 0) {
+					int count = 8;
 					bb.flip();
-					while(bb.hasRemaining()) {
+					while(bb.hasRemaining() && count < bb.limit()) {
 						// TODO - change from bb.get() to bb.getInt(key)
-						strTable += (char)bb.get();
+						int b = bb.getInt(count);
+						System.out.println(b);
+						strList.add(Integer.toString(b));
+						count += 4;
 					}
-					table = strTable.split("(\r\n|\r|\n)");
+					table = (String[])strList.toArray();
 				}
 			} catch (IOException e) {
 				System.out.println("readNextTuple IOException");
@@ -62,6 +71,5 @@ public class TupleReader {
 		}
 		return null;
 	}
-	
-	
+
 }

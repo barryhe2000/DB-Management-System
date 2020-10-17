@@ -1,3 +1,4 @@
+package PhysicalOperators;
 import static org.junit.Assert.assertEquals;
 
 import java.io.FileReader;
@@ -6,6 +7,7 @@ import java.util.Stack;
 
 import org.junit.Test;
 
+import Main.Main;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.schema.Table;

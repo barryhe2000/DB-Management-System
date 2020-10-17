@@ -1,6 +1,9 @@
+package PhysicalOperators;
+
 public class ScanOperator extends Operator {
 
 	private TupleReader tr = new TupleReader(fileName);
+//	private BinaryTupleReader btr = new BinaryTupleReader(fileName);
 
     public ScanOperator(String fileName) {
         super(fileName);
@@ -13,6 +16,7 @@ public class ScanOperator extends Operator {
      * @return tuple, next tuple in table
      */
     @Override public Tuple getNextTuple() {
+//    	return btr.readNextTuple();
     	return tr.readNextTuple();
     }
 
@@ -20,6 +24,7 @@ public class ScanOperator extends Operator {
      * Resets class instance such that getNextTuple() starts back at the table head.
      */
     @Override public void reset(String file) {
+//    	btr = new BinaryTupleReader(fileName);
     	tr = new TupleReader(fileName);
     }
 }

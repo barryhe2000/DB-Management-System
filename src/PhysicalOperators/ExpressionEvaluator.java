@@ -1,4 +1,7 @@
+package PhysicalOperators;
 import java.util.Stack;
+
+import Main.*;
 import java.util.HashMap;
 
 import net.sf.jsqlparser.expression.AllComparisonExpression;
